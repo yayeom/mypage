@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Helvetica Neue',sans-serif;background:#F2F2F7;color:#1C1C1E;-webkit-font-smoothing:antialiased}
+.page{max-width:760px;margin:0 auto;padding:40px 24px 64px}
+
+.eyebrow{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#8E8E93;margin-bottom:4px}
+.page-title{font-size:26px;font-weight:700;letter-spacing:-.4px;color:#1C1C1E;margin-bottom:4px}
+.page-sub{font-size:14px;color:#8E8E93;margin-bottom:6px}
+.page-chip{display:inline-block;font-size:11px;font-weight:600;color:#007AFF;background:rgba(0,122,255,.1);padding:3px 10px;border-radius:20px;margin-bottom:36px}
+
+/* 다이어그램 전체 흐름 */
+.flow{display:flex;flex-direction:column;align-items:center;gap:0}
+
+/* 노드 공통 */
+.node{width:100%;border-radius:14px;padding:18px 22px;position:relative}
+.node-title{font-size:16px;font-weight:600;color:#1C1C1E;margin-bottom:2px}
+.node-path{font-size:11px;font-family:'SF Mono','Menlo',monospace;margin-bottom:8px}
+.node-desc{font-size:13px;line-height:1.6}
+
+/* 팀 리드 */
+.node-lead{background:#fff;border:1px solid #E5E5EA;width:260px;text-align:center}
+.node-lead .node-title{color:#1C1C1E}
+.node-lead .node-desc{color:#8E8E93}
+
+/* 화살표 */
+.arrow-block{display:flex;flex-direction:column;align-items:center;padding:4px 0;gap:2px}
+.arrow-line{width:1.5px;background:#C7C7CC;flex:1;min-height:20px}
+.arrow-head{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:7px solid #C7C7CC}
+.arrow-label{font-size:11px;color:#8E8E93;white-space:nowrap;background:#F2F2F7;padding:2px 8px;border-radius:10px;position:relative;z-index:1}
+
+/* Topkirby */
+.node-topkirby{background:#EEEDFE;border:1px solid #AFA9EC}
+.node-topkirby .node-title{color:#3C3489}
+.node-topkirby .node-path{color:#7F77DD}
+.node-topkirby .node-desc{color:#534AB7}
+.pipe{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.pipe-step{background:rgba(83,74,183,.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:600;color:#534AB7}
+.pipe-step span{color:#3C3489;margin-right:3px}
+
+/* DesignCHASE 컨테이너 */
+.node-chase{background:#E1F5EE;border:1px solid #5DCAA5;padding:20px 20px 24px}
+.node-chase .node-title{color:#085041}
+.node-chase .node-path{color:#1D9E75}
+.node-chase .node-desc{color:#0F6E56}
+
+/* agents/ 구분선 영역 */
+.agents-label{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#1D9E75;text-align:center;margin:14px 0 12px;opacity:.7}
+
+/* 서브에이전트 그리드 */
+.sub-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.sub-grid{grid-template-columns:1fr}}
+
+/* WHY */
+.sub-why{background:#EBF4FF;border:1px solid rgba(0,122,255,.2);border-radius:12px;padding:16px 18px}
+.sub-why .sub-title{font-size:14px;font-weight:700;color:#0055CC;margin-bottom:2px}
+.sub-why .sub-role{font-size:12px;color:#378ADD;margin-bottom:10px}
+.sub-why .item{font-size:12.5px;color:#185FA5;padding:4px 0;border-bottom:.5px solid rgba(0,122,255,.1);display:flex;align-items:center;gap:6px}
+.sub-why .item:last-child{border-bottom:none}
+.sub-why .dot{width:5px;height:5px;border-radius:50%;background:#378ADD;flex-shrink:0}
+
+/* HOW */
+.sub-how{background:#F0FAF4;border:1px solid rgba(52,199,89,.2);border-radius:12px;padding:16px 18px}
+.sub-how .sub-title{font-size:14px;font-weight:700;color:#1A5C2A;margin-bottom:2px}
+.sub-how .sub-role{font-size:12px;color:#3B6D11;margin-bottom:10px}
+.sub-how .item{font-size:12.5px;color:#27500A;padding:4px 0;border-bottom:.5px solid rgba(52,199,89,.1);display:flex;align-items:center;gap:6px}
+.sub-how .item:last-child{border-bottom:none}
+.sub-how .dot{width:5px;height:5px;border-radius:50%;background:#639922;flex-shrink:0}
+
+/* 파일 태그 */
+.file-tags{display:flex;gap:6px;margin-top:12px}
+.ftag{background:#fff;border:1px solid #E5E5EA;border-radius:6px;padding:3px 10px;font-size:11px;font-weight:500;color:#8E8E93;font-family:'SF Mono','Menlo',monospace}
+
+/* 결과 바 */
+.result-bar{background:rgba(29,158,117,.12);border-radius:8px;padding:9px 14px;margin-top:14px;font-size:12.5px;color:#085041;text-align:center;line-height:1.5}
+.result-bar strong{font-weight:600}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <p class="eyebrow">AI 디자인 개발 비교</p>
+  <h1 class="page-title">전체 에이전트 시스템 구조</h1>
+  <p class="page-sub">Topkirby · DesignCHASE 에이전트 아키텍처</p>
+  <span class="page-chip">시스템 문서</span>
+
+  <div class="flow">
+
+    <!-- 팀 리드 -->
+    <div class="node node-lead">
+      <div class="node-title">팀 리드</div>
+      <div class="node-desc">PRD · MD · 프롬프트</div>
+    </div>
+
+    <!-- 화살표 1 -->
+    <div class="arrow-block" style="height:52px">
+      <div class="arrow-line" style="height:10px"></div>
+      <div class="arrow-label">① 디자인 지시</div>
+      <div class="arrow-line" style="height:10px"></div>
+      <div class="arrow-head"></div>
+    </div>
+
+    <!-- Topkirby -->
+    <div class="node node-topkirby">
+      <div class="node-title">Topkirby — 총괄 디자이너</div>
+      <div class="node-desc">입력을 분석해 3안(Safe · Bold · Hybrid)을 도출하고 프로토타입으로 구현</div>
+      <div class="pipe">
+        <div class="pipe-step"><span>01</span>입력 분석</div>
+        <div class="pipe-step"><span>02</span>시나리오</div>
+        <div class="pipe-step"><span>03</span>3안 컨셉</div>
+        <div class="pipe-step"><span>04</span>프로토타입</div>
+        <div class="pipe-step"><span>05</span>팀 리드 확인</div>
+      </div>
+      <div class="file-tags">
+        <span class="ftag">CLAUDE.md</span>
+        <span class="ftag">README.md</span>
+      </div>
+    </div>
+
+    <!-- 화살표 2 -->
+    <div class="arrow-block" style="height:58px">
+      <div class="arrow-line" style="height:10px"></div>
+      <div class="arrow-label">② 산출물 전달 (HTML / 이미지)</div>
+      <div class="arrow-line" style="height:10px"></div>
+      <div class="arrow-head"></div>
+    </div>
+
+    <!-- DesignCHASE -->
+    <div class="node node-chase">
+      <div class="node-title">DesignCHASE — 검증 오케스트레이터</div>
+      <div class="node-desc">Topkirby 산출물을 수신해 전략·사용성 검증을 병렬 실행 후 최종 리포트 생성</div>
+      <div class="file-tags">
+        <span class="ftag">CLAUDE.md</span>
+        <span class="ftag">README.md</span>
+      </div>
+
+      <div class="agents-label">agents/</div>
+
+      <div class="sub-grid">
+        <!-- WHY -->
+        <div class="sub-why">
+          <div class="sub-title">design-why/</div>
+          <div class="sub-role">전략 검증 서브에이전트</div>
+          <div class="item"><span class="dot"></span>비즈니스 목표</div>
+          <div class="item"><span class="dot"></span>사용자 맥락</div>
+          <div class="item"><span class="dot"></span>브랜드</div>
+          <div class="item"><span class="dot"></span>기능 우선순위</div>
+          <div class="file-tags" style="margin-top:10px">
+            <span class="ftag">CLAUDE.md</span>
+            <span class="ftag">README.md</span>
+          </div>
+        </div>
+
+        <!-- HOW -->
+        <div class="sub-how">
+          <div class="sub-title">design-how/</div>
+          <div class="sub-role">사용성 검증 서브에이전트</div>
+          <div class="item"><span class="dot"></span>가시성</div>
+          <div class="item"><span class="dot"></span>접근성</div>
+          <div class="item"><span class="dot"></span>일관성 · 통일성</div>
+          <div class="item"><span class="dot"></span>컬러 시스템</div>
+          <div class="file-tags" style="margin-top:10px">
+            <span class="ftag">CLAUDE.md</span>
+            <span class="ftag">README.md</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="result-bar">결과 취합 후 <strong>최종 리포트</strong> 생성 → 팀 리드 전달 &nbsp;·&nbsp; <strong>chase-history.pro</strong>에 검증 이력 기록</div>
+    </div>
+
+  </div>
+</div>
+</body>
+</html>
